@@ -1,4 +1,7 @@
 streamlit
+numpy
 pandas
 st-gsheets-connection
 plotly
+st-supabase-connection
+sqlalchemy

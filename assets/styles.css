@@ -1,0 +1,104 @@
+/* 1. Global Reset & App Container */
+[data-testid="stAppViewContainer"] {
+    background-color: #0f172a; /* Slate 900 */
+    color: #f1f5f9;
+}
+
+/* 2. Custom Sidebar Styling (The Dock) */
+[data-testid="stSidebar"] {
+    background-color: #1e293b;
+    border-right: 1px solid #334155;
+    width: 260px !important;
+}
+
+/* 3. Global Typography & Spacing */
+.block-container {
+    padding: 2rem 3rem !important;
+    max-width: 100% !important;
+}
+
+/* 4. Enterprise Card Styling */
+.kpi-card {
+    background-color: #1e293b;
+    padding: 20px;
+    border-radius: 12px;
+    border: 1px solid #334155;
+    text-align: center;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+    
+    /* Force equal size */
+    width: 100%; 
+    height: 150px; /* Adjust this value to your preferred height */
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    margin-bottom: 1rem;
+}
+
+.kpi-card:hover {
+    transform: translateY(-2px);
+    border-color: #475569;
+}
+
+.kpi-label {
+    color: #94a3b8;
+    font-size: 0.85rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    margin-bottom: 8px;
+}
+
+.kpi-value {
+    color: #f1f5f9;
+    font-size: 1.8rem;
+    font-weight: 700;
+}
+
+.kpi-delta {
+    font-size: 0.75rem;
+    color: #10b981; /* Success Green */
+    margin-top: 5px;
+}
+
+/* 5. Typography Helpers */
+.page-title {
+    font-size: 2rem;
+    font-weight: 800;
+    margin-bottom: 0.5rem;
+    color: #f8fafc;
+}
+
+.page-subtitle {
+    font-size: 1.1rem;
+    color: #94a3b8;
+    margin-bottom: 2rem;
+}
+
+/* 6. Navigation Button Styling */
+div.stButton > button {
+    background-color: transparent !important;
+    border: none !important;
+    color: #cbd5e1 !important;
+    text-align: left !important;
+    padding: 12px 20px !important;
+    border-radius: 8px !important;
+    width: 100% !important;
+    font-weight: 500;
+}
+
+div.stButton > button:hover {
+    background-color: #334155 !important;
+    color: #ffffff !important;
+}
+
+/* 7. Clean up Streamlit UI noise */
+#MainMenu, footer { 
+    visibility: hidden; 
+}
+
+/* 8. Table/Dataframe refinements */
+[data-testid="stDataFrame"] {
+    border: 1px solid #334155 !important;
+    border-radius: 12px;
+}
