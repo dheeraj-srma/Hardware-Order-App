@@ -70,6 +70,7 @@ def clean_columns(df: pd.DataFrame) -> pd.DataFrame:
 # GENERIC LOADER
 # ---------------------------------------------------------------------------
 
+@st.cache_data(ttl=15, show_spinner=False)
 def load_table(table_name: str) -> pd.DataFrame:
     try:
         response = supabase.table(table_name).select("*").execute()

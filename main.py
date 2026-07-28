@@ -1,4 +1,7 @@
+# pyrefly: ignore [missing-import]
 import streamlit as st
+# pyrefly: ignore [missing-import]
+import streamlit.components.v1 as components
 from utils import styles  # Import your styles module
 from components import sidebar, header
 from modules.inventory import home, live_stock, adjustments, transactions, add_item, product_details
@@ -6,6 +9,19 @@ from modules.orders import orders
 from modules.suppliers import manage
 from modules.inwards import inwards
 from modules.returns import returns
+from modules.analytics import analytics
+from modules.reports import generate_reports
+
+
+# ─────────────────────────────────────────────────────────────────────────────
+# PAGE CONFIG
+# ─────────────────────────────────────────────────────────────────────────────
+st.set_page_config(
+    page_title="Nalka Metals | Operational Admin Center",
+    page_icon="logo.png",
+    layout="wide",
+    initial_sidebar_state="expanded",
+)
 
 
 st.markdown(
@@ -15,9 +31,6 @@ st.markdown(
     .stButton > button[kind="primary"], .stButton > button:hover { border-color: #60a5fa; background: #1d4ed8; color: #ffffff; }
     input, textarea, [data-baseweb="select"] > div { border-radius: 8px !important; }
 
-    </style>
-    
-    <style>
     /* Force columns to maintain layout on mobile */
     [data-testid="column"] {
         flex: 1 1 0% !important;
@@ -25,42 +38,43 @@ st.markdown(
     }
     </style>
     """,
-
     unsafe_allow_html=True,
 )
-
-# ─────────────────────────────────────────────────────────────────────────────
-# PAGE CONFIG
-# ─────────────────────────────────────────────────────────────────────────────
-st.set_page_config(
-    page_title="Nalka Metals Portal",
-    page_icon="NM",
-    layout="wide",
-    initial_sidebar_state="expanded",
-)
-
 
 styles.inject_global_css()
 
 
-
-# 1. Page Configuration
-st.set_page_config(
-    page_title="Nalka Metals | Admin Center",
-    layout="wide",
-    initial_sidebar_state="expanded"
-)
-
 # 2. Global State Initialization
 if 'active_module' not in st.session_state:
     st.session_state.active_module = "Overview"
+if 'last_module' not in st.session_state:
+    st.session_state.last_module = "Overview"
 
 
+def reset_scroll_position():
+    """Scrolls the workspace to the top on module navigation."""
+    components.html(
+        """
+        <script>
+            var mainContainer = window.parent.document.querySelector('.main') || window.parent.document.querySelector('[data-testid="stMain"]');
+            if (mainContainer) {
+                mainContainer.scrollTop = 0;
+            }
+            window.parent.scrollTo(0, 0);
+        </script>
+        """,
+        height=0,
+    )
 
 
 # 4. Main Workspace Orchestrator
 # This keeps the header and sidebar fixed, only replacing the content area
 def render_main_workspace():
+    # If module changed, auto-scroll to top
+    if st.session_state.active_module != st.session_state.last_module:
+        st.session_state.last_module = st.session_state.active_module
+        reset_scroll_position()
+
     header.render_header()
     
     # Ensure this map correctly points to the imported module objects
@@ -73,13 +87,13 @@ def render_main_workspace():
         "Suppliers": manage,
         "Inwards": inwards,
         "Returns": returns, 
-        "Transactions": transactions,
+        "Analytics": analytics,
+        "Reports": generate_reports,
         "Inventory Add": add_item,
         "Product Details": product_details,
         "Product Catalogue": live_stock
     }
     
-    # Use .get() but ensure the module has a 'render' function
     current_module = module_map.get(st.session_state.active_module)
     
     if current_module and hasattr(current_module, 'render'):

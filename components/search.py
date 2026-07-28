@@ -2,7 +2,7 @@ import streamlit as st
 
 def render_global_search():
     # Placeholder for the search input
-    search_query = st.text_input("🔍 Global Search...", placeholder="SKU, Order ID, Supplier...", label_visibility="collapsed")
+    search_query = st.text_input("Global Search...", placeholder="SKU, Order ID, Supplier...", label_visibility="collapsed")
     
     if search_query:
         # Example logic: redirect based on query prefix

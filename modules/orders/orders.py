@@ -1,12 +1,12 @@
 import streamlit as st
 from database.crud import load_table, approve_order
 from sqlalchemy import text
+from utils.icons import get_lucide_html
 
 def render():
-    st.markdown('<h2 class="page-title">🛒 Order Management</h2>', unsafe_allow_html=True)
     st.markdown('<p class="page-subtitle">Review, search, and approve incoming orders.</p>', unsafe_allow_html=True)
 
-    if st.button("← Back to Dashboard"):
+    if st.button("Back to Dashboard"):
         st.session_state.active_module = "Overview"
         st.rerun()
 
@@ -17,7 +17,7 @@ def render():
 
     search_col, status_col = st.columns([3, 1])
     with search_col:
-        search = st.text_input("🔍 Search by Order ID, SKU, Item, or Salesman", placeholder="Type to filter...")
+        search = st.text_input("Search by Order ID, SKU, Item, or Salesman", placeholder="Type to filter...")
     with status_col:
         status_filter = st.selectbox("Status", ["All"] + sorted(df["Status"].dropna().unique().tolist()))
 
@@ -55,7 +55,7 @@ def render():
         pending_order_ids = pending["Order ID"].dropna().unique().tolist()
         order_id = st.selectbox("Select Order ID to Approve", pending_order_ids)
 
-        if st.button("🚀 Approve & Deduct Stock", type="primary", key="approve_ordr"):
+        if st.button("Approve & Deduct Stock", type="primary", key="approve_ordr"):
             with st.spinner("Approving order and updating stock..."):
                 if approve_order(order_id):
                     st.success(f"Order {order_id} approved and inventory updated!")

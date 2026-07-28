@@ -1,19 +1,26 @@
+from utils.icons import get_lucide_html
 import streamlit as st
-from components.search import render_global_search
+
+MODULE_HEADERS = {
+    "Overview": ("package", "primary", "Inventory Overview"),
+    "Inventory": ("package", "primary", "Live Inventory"),
+    "Orders": ("shopping-cart", "green", "Order Management"),
+    "Inwards": ("arrow-down-to-line", "green", "Inwards (Procurement)"),
+    "Returns": ("rotate-ccw", "warning", "Returns & Quality Control"),
+    "Suppliers": ("building-2", "cyan", "Supplier Management"),
+    "Adjustments": ("sliders", "warning", "Stock Adjustments"),
+    "Transactions": ("receipt", "cyan", "Master Transaction Ledger"),
+    "Analytics": ("bar-chart-3", "purple", "Analytics & Business Intelligence"),
+    "Reports": ("file-text", "primary", "Executive Report Generation & Export"),
+    "Inventory Add": ("plus-circle", "green", "Add Product Master"),
+    "Product Details": ("clipboard-list", "primary", "Product Details"),
+}
 
 
 def render_header():
     """
     Renders the fixed header area for the Admin Center.
     """
-
-
-    c1, c2 = st.columns([3, 1])
-    with c1:
-        st.subheader("Nalka Metals Portal")
-    with c2:
-        render_global_search() # Search bar appears in the top right
-
     # Create the header container
     header_container = st.container()
     
@@ -21,20 +28,30 @@ def render_header():
         col1, col2 = st.columns([3, 1])
         
         with col1:
-            # Displays the title of the current module being viewed
+            # 1. Top Logo
+            st.image("logo.png", width=180)
+            
+            # 2. Subtitle of the page directly below the logo
+            active = st.session_state.get("active_module", "Overview")
+            icon_name, icon_color, display_title = MODULE_HEADERS.get(active, ("layout-dashboard", "primary", active))
+            icon_html = get_lucide_html(icon_name, size=22, color=icon_color)
+            
             st.markdown(f"""
-                <h1 style='margin: 0; font-size: 1.5rem; color: #f1f5f9;'>
-                    {st.session_state.active_module}
-                </h1>
+                <div style="display: flex; align-items: center; gap: 8px; margin-top: 6px; margin-bottom: 2px;">
+                    <div>{icon_html}</div>
+                    <h2 style='margin: 0; font-size: 1.25rem; color: #94a3b8; font-weight: 600; letter-spacing: 0.02em;'>
+                        {display_title}
+                    </h2>
+                </div>
             """, unsafe_allow_html=True)
             
         with col2:
             # Right-aligned utility actions
             col_a, col_b = st.columns([1, 1])
             with col_a:
-                st.button("🔔", key="notifications")
+                st.button("Alerts", key="notifications")
             with col_b:
-                st.button("👤", key="profile")
+                st.button("Profile", key="profile")
         
         # Horizontal rule to separate header from content
         st.markdown("<hr style='margin: 10px 0; border: 0; border-top: 1px solid #334155;'>", unsafe_allow_html=True)

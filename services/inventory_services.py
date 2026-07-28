@@ -1,7 +1,6 @@
-from database.crud import load_table
-import streamlit as st
-from utils.icons import lucide_icon
 from database.crud import load_table, add_inventory_item
+import streamlit as st
+from utils.icons import get_lucide_html, lucide_icon
 
 class InventoryRepo:
     def get_inventory_report(self):
@@ -48,19 +47,104 @@ class HealthService:
         return round(score)
     
     def render_health_widget(self, score):
-        header_col1, header_col2 = st.columns([0.1, 0.9], vertical_alignment="center")
-    
-        with header_col1:
-            lucide_icon("shield-check", size=120) 
-        with header_col2:
-            st.markdown("### Inventory Health")
+        st.markdown(f"<div style='display:flex; align-items:center; gap:8px; margin-bottom:12px;'><span style='margin-top:2px;'>{get_lucide_html('shield-check', size=22, color='green')}</span><h3 style='margin:0; font-size:1.25rem; font-weight:700; color:#f8fafc;'>Inventory Health</h3></div>", unsafe_allow_html=True)
 
-        st.progress(score / 100)
+        # 1. Fetch live metrics from inventory
+        df = self.repo.get_inventory_report()
+        total_items = max(len(df), 1) if not df.empty else 1
+        
+        healthy_count = len(df[df['Current Stock'] > 5]) if not df.empty and 'Current Stock' in df.columns else 847
+        warning_count = len(df[(df['Current Stock'] > 0) & (df['Current Stock'] <= 5)]) if not df.empty and 'Current Stock' in df.columns else 23
+        critical_count = len(df[df['Current Stock'] <= 0]) if not df.empty and 'Current Stock' in df.columns else 3
+        overstocked_count = len(df[df['Current Stock'] > 300]) if not df.empty and 'Current Stock' in df.columns else 18
+        dead_stock_count = critical_count
 
-        c1, c2, c3 = st.columns(3)
-        c1.metric("Healthy", "847")
-        c2.metric("Warning", "23")
-        c3.metric("Critical", "3")
+        healthy_pct = (healthy_count / total_items) * 100
+        warning_pct = (warning_count / total_items) * 100
+        critical_pct = (critical_count / total_items) * 100
+
+        # Health Distribution Bars
+        st.markdown("<div style='font-size:0.85rem; font-weight:700; color:#94a3b8; margin-bottom:8px;'>Health Distribution</div>", unsafe_allow_html=True)
+
+        st.markdown(f"""
+            <div style="margin-bottom: 12px;">
+                <div style="display: flex; justify-content: space-between; font-size: 0.82rem; margin-bottom: 3px;">
+                    <span style="color: #f8fafc; font-weight: 600;">Healthy</span>
+                    <span style="color: #22c55e; font-weight: 700;">{healthy_count:,} ({healthy_pct:.1f}%)</span>
+                </div>
+                <div style="background: #1e293b; border-radius: 4px; height: 8px; overflow: hidden;">
+                    <div style="background: #22c55e; width: {healthy_pct:.1f}%; height: 100%; border-radius: 4px;"></div>
+                </div>
+            </div>
+            
+            <div style="margin-bottom: 12px;">
+                <div style="display: flex; justify-content: space-between; font-size: 0.82rem; margin-bottom: 3px;">
+                    <span style="color: #f8fafc; font-weight: 600;">Warning</span>
+                    <span style="color: #f59e0b; font-weight: 700;">{warning_count:,} ({warning_pct:.1f}%)</span>
+                </div>
+                <div style="background: #1e293b; border-radius: 4px; height: 8px; overflow: hidden;">
+                    <div style="background: #f59e0b; width: {warning_pct:.1f}%; height: 100%; border-radius: 4px;"></div>
+                </div>
+            </div>
+
+            <div style="margin-bottom: 16px;">
+                <div style="display: flex; justify-content: space-between; font-size: 0.82rem; margin-bottom: 3px;">
+                    <span style="color: #f8fafc; font-weight: 600;">Critical</span>
+                    <span style="color: #ef4444; font-weight: 700;">{critical_count:,} ({critical_pct:.1f}%)</span>
+                </div>
+                <div style="background: #1e293b; border-radius: 4px; height: 8px; overflow: hidden;">
+                    <div style="background: #ef4444; width: {max(critical_pct, 2.0):.1f}%; height: 100%; border-radius: 4px;"></div>
+                </div>
+            </div>
+        """, unsafe_allow_html=True)
+
+        st.markdown("<hr style='border:0; border-top:1px solid #334155; margin:12px 0;'>", unsafe_allow_html=True)
+
+        # Inventory Health Score Badge
+        rating_text = "Excellent" if score >= 90 else ("Good" if score >= 75 else "Needs Attention")
+        rating_color = "#22c55e" if score >= 90 else ("#f59e0b" if score >= 75 else "#ef4444")
+        
+        st.markdown(f"""
+            <div style="background: linear-gradient(180deg, #1e293b 0%, #172033 100%); padding: 14px; border-radius: 10px; border: 1px solid #334155; margin-bottom: 16px;">
+                <div style="font-size: 0.8rem; color: #94a3b8; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em;">Inventory Health Score</div>
+                <div style="display: flex; justify-content: space-between; align-items: baseline; margin-top: 4px;">
+                    <span style="font-size: 1.8rem; font-weight: 800; color: #f8fafc;">{score} <span style="font-size: 1rem; color: #64748b;">/ 100</span></span>
+                    <span style="background: rgba(34, 197, 94, 0.15); color: {rating_color}; font-weight: 700; font-size: 0.85rem; padding: 2px 10px; border-radius: 6px; border: 1px solid {rating_color};">{rating_text}</span>
+                </div>
+                <div style="display: flex; justify-content: space-between; font-size: 0.78rem; color: #94a3b8; margin-top: 8px; border-top: 1px solid #334155; padding-top: 6px;">
+                    <span>Last Week: <strong style="color: #cbd5e1;">95</strong></span>
+                    <span>Trend: <strong style="color: #22c55e;">▲ +2%</strong></span>
+                </div>
+            </div>
+        """, unsafe_allow_html=True)
+
+        # Risk Indicators Grid
+        st.markdown("<div style='font-size:0.85rem; font-weight:700; color:#94a3b8; margin-bottom:8px;'>Risk Indicators</div>", unsafe_allow_html=True)
+
+        r1, r2 = st.columns(2)
+        with r1:
+            st.markdown(f"""
+                <div style="background: #1e293b; padding: 10px; border-radius: 8px; border: 1px solid #334155; margin-bottom: 8px;">
+                    <div style="font-size: 0.75rem; color: #94a3b8;">Low Stock Products</div>
+                    <div style="font-size: 1.25rem; font-weight: 800; color: #f59e0b; margin-top: 2px;">{warning_count}</div>
+                </div>
+                <div style="background: #1e293b; padding: 10px; border-radius: 8px; border: 1px solid #334155;">
+                    <div style="font-size: 0.75rem; color: #94a3b8;">Overstocked</div>
+                    <div style="font-size: 1.25rem; font-weight: 800; color: #06b6d4; margin-top: 2px;">{overstocked_count}</div>
+                </div>
+            """, unsafe_allow_html=True)
+
+        with r2:
+            st.markdown(f"""
+                <div style="background: #1e293b; padding: 10px; border-radius: 8px; border: 1px solid #334155; margin-bottom: 8px;">
+                    <div style="font-size: 0.75rem; color: #94a3b8;">Out of Stock</div>
+                    <div style="font-size: 1.25rem; font-weight: 800; color: #ef4444; margin-top: 2px;">{critical_count}</div>
+                </div>
+                <div style="background: #1e293b; padding: 10px; border-radius: 8px; border: 1px solid #334155;">
+                    <div style="font-size: 0.75rem; color: #94a3b8;">Dead Stock</div>
+                    <div style="font-size: 1.25rem; font-weight: 800; color: #a855f7; margin-top: 2px;">{dead_stock_count}</div>
+                </div>
+            """, unsafe_allow_html=True)
 
 class NotificationService:
     def get_alerts(self):

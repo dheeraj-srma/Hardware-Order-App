@@ -1,16 +1,10 @@
 import streamlit as st
 from database.crud import load_table
 from utils.ui import kpi_card
-
-
+from utils.icons import get_lucide_html
 
 
 def render():
-    st.markdown(
-        '<h2 class="page-title">📜 Master Transaction Ledger</h2>',
-        unsafe_allow_html=True
-    )
-
     df = load_table("INVENTORY_TRANSACTIONS")
 
     if df.empty:
@@ -52,35 +46,39 @@ def render():
         kpi_card(
             "OUTGOING",
             f"{len(orders_df):,}",
-            "🛒",
-            "Sales Orders"
+            "shopping-cart",
+            "Sales Orders",
+            icon_color="green"
         )
 
     with c2:
         kpi_card(
             "INCOMING",
             f"{len(inward_df):,}",
-            "📦",
+            "package",
             "Stock Received",
-            "positive"
+            "positive",
+            icon_color="primary"
         )
 
     with c3:
         kpi_card(
             "RETURNS",
             f"{len(returns_df):,}",
-            "↩️",
+            "rotate-ccw",
             "Goods Returned",
-            "warning"
+            "warning",
+            icon_color="warning"
         )
 
     with c4:
         kpi_card(
             "REPLACEMENTS",
             f"{len(replacement_df):,}",
-            "🔄",
+            "rotate-cw",
             "Replacement Stock",
-            "info"
+            "info",
+            icon_color="cyan"
         )
 
     st.write("")
@@ -89,9 +87,9 @@ def render():
     # Helper
     # ====================================================
 
-    def render_table(title, icon, data):
+    def render_table(title, icon_name, icon_color, data):
 
-        st.subheader(f"{icon} {title}")
+        st.markdown(f"### {get_lucide_html(icon_name, size=20, color=icon_color)} {title}", unsafe_allow_html=True)
 
         if data.empty:
             st.info("No records available.")
@@ -120,13 +118,13 @@ def render():
 
     tab1, tab2, tab3, tab4 = st.tabs([
 
-        f"🛒 Orders ({len(orders_df)})",
+        f"Orders ({len(orders_df)})",
 
-        f"📦 Inwards ({len(inward_df)})",
+        f"Inwards ({len(inward_df)})",
 
-        f"↩️ Returns ({len(returns_df)})",
+        f"Returns ({len(returns_df)})",
 
-        "📜 Audit Trail"
+        "Audit Trail"
 
     ])
 
@@ -134,7 +132,8 @@ def render():
 
         render_table(
             "Recent Orders",
-            "🛒",
+            "shopping-cart",
+            "green",
             orders_df
         )
 
@@ -142,7 +141,8 @@ def render():
 
         render_table(
             "Recent Inwards",
-            "📦",
+            "package",
+            "primary",
             inward_df
         )
 
@@ -150,7 +150,8 @@ def render():
 
         render_table(
             "Recent Returns",
-            "↩️",
+            "rotate-ccw",
+            "warning",
             returns_df
         )
 
@@ -158,6 +159,7 @@ def render():
 
         render_table(
             "Complete Transaction History",
-            "📜",
+            "receipt",
+            "cyan",
             df
-        )
+        )

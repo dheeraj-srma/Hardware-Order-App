@@ -1,13 +1,13 @@
 import streamlit as st
 import pandas as pd
 from database.crud import load_table, insert_inward
+from utils.icons import get_lucide_html
 
 
 def render():
-    st.markdown('<h2 class="page-title">📦 Inwards (Procurement)</h2>', unsafe_allow_html=True)
     st.markdown('<p class="page-subtitle">Record stock received from suppliers.</p>', unsafe_allow_html=True)
 
-    if st.button("← Back to Dashboard"):
+    if st.button("Back to Dashboard"):
         st.session_state.active_module = "Overview"
         st.rerun()
 
@@ -15,10 +15,10 @@ def render():
     inventory = load_table("INVENTORY")
 
     if suppliers.empty or "Supplier Name" not in suppliers.columns:
-        st.warning("⚠️ No suppliers found. Add one under Suppliers first.")
+        st.warning("No suppliers found. Add one under Suppliers first.")
         return
     if inventory.empty or "SKU" not in inventory.columns or "Category" not in inventory.columns:
-        st.warning("⚠️ No inventory items found.")
+        st.warning("No inventory items found.")
         return
 
     categories = inventory["Category"].dropna().unique().tolist()
@@ -52,9 +52,9 @@ def render():
             qty = st.number_input("Quantity Received", min_value=1, step=1, value=1)
             ref = st.text_input("Reference/Invoice Number")
 
-        if st.form_submit_button("🚀 Record Inward Shipment", type="primary"):
+        if st.form_submit_button("Record Inward Shipment", type="primary"):
             if not sku:
-                st.error("❌ Could not resolve a valid SKU for the selected Category and Item.")
+                st.error("Could not resolve a valid SKU for the selected Category and Item.")
             else:
                 with st.spinner("Recording shipment and updating stock..."):
                     if insert_inward(sku, selected_item_name, selected_category, supplier, int(qty)):

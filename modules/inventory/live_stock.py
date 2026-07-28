@@ -1,11 +1,9 @@
 import streamlit as st
 from database.crud import load_table
+from utils.icons import get_lucide_html
 
 def render():
-    st.markdown('<h2 class="page-title">📦 Live Inventory</h2>', unsafe_allow_html=True)
-    # Navigation
-
-    if st.button("← Back to Dashboard"):
+    if st.button("Back to Dashboard"):
         st.session_state.active_module = "Overview"
         st.rerun()
     # 1. Fetch Data
@@ -17,7 +15,7 @@ def render():
     c1, c2, c3, c4 = st.columns([2, 1, 1, 0.5])
 
     with c1:
-        search = st.text_input("🔍 Search by SKU or Name", placeholder="Type SKU or Product Name...")
+        search = st.text_input("Search by SKU or Name", placeholder="Type SKU or Product Name...")
     
     with c2:
         category = st.selectbox("Category", ["All"] + df["Category"].unique().tolist())

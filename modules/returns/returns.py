@@ -1,20 +1,20 @@
 import datetime
 import streamlit as st
 from database.crud import load_table, insert_return
+from utils.icons import get_lucide_html
 
 def render():
     st.markdown("""
-        <h2 class="page-title">↩️ Returns &amp; Quality Control</h2>
         <p class="page-subtitle">Log customer returns, map conditions to reasons, and route stock accordingly.</p>
     """, unsafe_allow_html=True)
 
-    if st.button("← Back to Dashboard"):
+    if st.button("Back to Dashboard"):
         st.session_state.active_module = "Overview"
         st.rerun()
 
     inventory = load_table("INVENTORY")
     if inventory.empty or "Category" not in inventory.columns:
-        st.warning("⚠️ No inventory items found.")
+        st.warning("No inventory items found.")
         return
     
     categories = inventory["Category"].dropna().unique().tolist()
@@ -70,15 +70,15 @@ def render():
             st.markdown(f"**Assigned Status:** `{default_status}`")
             st.info(action_label)
 
-        submitted = st.form_submit_button("🚀 Process Return")
+        submitted = st.form_submit_button("Process Return")
 
         if submitted:
             if not shop_name.strip():
-                st.error("❌ Please provide the Shop Name.")
+                st.error("Please provide the Shop Name.")
             elif not salesman_name.strip():
-                st.error("❌ Please provide the Salesman Name.")
+                st.error("Please provide the Salesman Name.")
             elif not auto_sku:
-                st.error("❌ Could not resolve a valid SKU for the selected Category and Item.")
+                st.error("Could not resolve a valid SKU for the selected Category and Item.")
             else:
                 return_row = {
                     "Timestamp":     datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"),

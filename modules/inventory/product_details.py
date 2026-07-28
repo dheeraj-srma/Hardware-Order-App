@@ -1,10 +1,9 @@
 import streamlit as st
 from database.crud import load_table
+from utils.icons import get_lucide_html
 
 def render():
-    st.markdown("## 🔍 Product Details")
-    
-    if st.button("← Back to Dashboard"):
+    if st.button("Back to Dashboard"):
         st.session_state.active_module = "Overview"
         st.rerun()
 
@@ -36,7 +35,7 @@ def render():
         st.markdown("---")
         
         # 5. Movement Timeline
-        st.subheader("🕒 Movement History")
+        st.markdown(f"### {get_lucide_html('history', size=22, color='purple')} Movement History", unsafe_allow_html=True)
         txns = load_table("INVENTORY_TRANSACTIONS")
         product_history = txns[txns["SKU"] == selected_sku].sort_values(by="Timestamp", ascending=False)
         

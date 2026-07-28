@@ -341,7 +341,7 @@ if not st.session_state.authenticated:
                 st.session_state.user_role = username
                 st.rerun()
             else:
-                st.error("❌ Invalid Password Configuration.")
+                st.error("Invalid Password Configuration.")
     st.stop()
 
 
@@ -374,18 +374,18 @@ if st.session_state.user_role in ["Salesman", "Manager", "Customer"]:
         <div style="display:flex;justify-content:space-between;align-items:center;
                     padding:6px 12px;background-color:#e3f2fd;border-radius:6px;
                     font-size:0.85rem;color:#0d47a1;margin-bottom:12px;border:1px solid #bbdefb;">
-            <span>👤 <b>Role:</b> {st.session_state.user_role}</span>
-            <span>🛠️ <b>Scope:</b> {purpose_text}</span>
+            <span><b>Role:</b> {st.session_state.user_role}</span>
+            <span><b>Scope:</b> {purpose_text}</span>
         </div>
         """, unsafe_allow_html=True)
 
-        if st.button("🔒 Log Out", key="logout_btn"):
+        if st.button("Log Out", key="logout_btn"):
             st.session_state.authenticated = False
             st.session_state.user_role = None
             st.session_state.form_structure = [{"category": "", "items": [{"name": "", "qty": 0}]}]
             st.rerun()
 
-        st.subheader("📋 Action Entry Sheet")
+        st.subheader("Action Entry Sheet")
 
         categories_list = (
             [""] + sorted(inventory_df["Category"].dropna().unique().tolist())
@@ -477,7 +477,7 @@ if st.session_state.user_role in ["Salesman", "Manager", "Customer"]:
                         current_avail = inventory_df[inventory_df["Item Name"] == item_name]["Current Stock"].values
                         avail_stock = int(current_avail[0]) if len(current_avail) > 0 else 0
                         if item_qty > avail_stock:
-                            st.warning(f"⚠️ Only {avail_stock} units left in stock!")
+                            st.warning(f"Only {avail_stock} units left in stock!")
 
                         final_transaction_payload.append({
                             "Category":  selected_cat,
@@ -487,7 +487,7 @@ if st.session_state.user_role in ["Salesman", "Manager", "Customer"]:
 
                 if selected_cat:
                     with st.columns([1, 3])[0]:
-                        if st.button("➕ Item", key=f"sales_add_item_{c_idx}"):
+                        if st.button("+ Item", key=f"sales_add_item_{c_idx}"):
                             st.session_state.form_structure[c_idx]["items"].append({"name": "", "qty": 0})
                             st.rerun()
 
@@ -497,15 +497,15 @@ if st.session_state.user_role in ["Salesman", "Manager", "Customer"]:
                     st.session_state.form_structure.append({"category": "", "items": [{"name": "", "qty": 0}]})
                     st.rerun()
             with gc2:
-                if st.button("🗑️ Reset", key="sales_reset_btn"):
+                if st.button("Reset", key="sales_reset_btn"):
                     st.session_state.form_structure = [{"category": "", "items": [{"name": "", "qty": 0}]}]
                     st.rerun()
 
             st.write("")
 
-            if st.button("🚀 Place Order", type="primary", key="sales_commit_btn"):
+            if st.button("Place Order", type="primary", key="sales_commit_btn"):
                 if not salesman_name or not selected_shop or not final_transaction_payload:
-                    st.error("⚠️ Complete all required details and add at least one valid item.")
+                    st.error("Complete all required details and add at least one valid item.")
                 else:
                     with st.spinner("Processing Order..."):
                         order_id  = f"ORD-{uuid.uuid4().hex[:8]}"
@@ -542,14 +542,14 @@ if st.session_state.user_role in ["Salesman", "Manager", "Customer"]:
                             })
 
                         if insert_order(order_rows):
-                            st.success("✅ Order placed successfully!")
+                            st.success("Order placed successfully!")
                             st.session_state.form_structure = [{"category": "", "items": [{"name": "", "qty": 0}]}]
                             st.rerun()
         
 
         # ── MANAGER WORKFLOW ─────────────────────────────────────────────────
         elif st.session_state.user_role == "Manager":
-            manager_mode = st.radio("Choose Action", ["Stock Refill", "🔄 Process Return"], horizontal=True)
+            manager_mode = st.radio("Choose Action", ["Stock Refill", "Process Return"], horizontal=True)
 
             # ── MODE A: REFILL ───────────────────────────────────────────────
             if manager_mode == "Stock Refill":
@@ -589,7 +589,7 @@ if st.session_state.user_role in ["Salesman", "Manager", "Customer"]:
 
                     if selected_cat:
                         with st.columns([1, 3])[0]:
-                            if st.button("➕ Item", key=f"add_item_row_refill_{c_idx}"):
+                            if st.button("+ Item", key=f"add_item_row_refill_{c_idx}"):
                                 st.session_state.form_structure[c_idx]["items"].append({"name": "", "qty": 0})
                                 st.rerun()
 
@@ -607,16 +607,16 @@ if st.session_state.user_role in ["Salesman", "Manager", "Customer"]:
 
                 if st.button("Commit Inward", type="primary", key="commit_refill_btn"):
                     if not supplier or not final_transaction_payload:
-                        st.error("⚠️ Complete all required fields.")
+                        st.error("Complete all required fields.")
                     else:
                         with st.spinner("Processing additions..."):
                             if insert_inward(final_transaction_payload, supplier):
-                                st.success("✅ Warehouse balances updated!")
+                                st.success("Warehouse balances updated!")
                                 st.session_state.form_structure = [{"category": "", "items": [{"name": "", "qty": 0}]}]
                                 st.rerun()
 
             # ── MODE B: PROCESS RETURN ───────────────────────────────────────
-            elif manager_mode == "🔄 Process Return":
+            elif manager_mode == "Process Return":
                 st.write("### Log Returned Hardware")
 
                 col_r1, col_r2 = st.columns(2)
@@ -645,9 +645,9 @@ if st.session_state.user_role in ["Salesman", "Manager", "Customer"]:
                 )
                 ret_reason = st.text_area("Reason for Return / Defect Details", key="ret_reason_area")
 
-                if st.button("💾 Process and Log Return", type="primary", key="commit_return_btn"):
+                if st.button("Process and Log Return", type="primary", key="commit_return_btn"):
                     if not ret_dealer or not ret_shop or not ret_item or ret_qty <= 0 or not ret_reason:
-                        st.error("⚠️ Please fill out all return details completely.")
+                        st.error("Please fill out all return details completely.")
                     else:
                         with st.spinner("Processing logging details..."):
                             is_good      = "Good Item" in ret_condition
@@ -672,9 +672,9 @@ if st.session_state.user_role in ["Salesman", "Manager", "Customer"]:
 
                             if insert_return(return_row):
                                 if is_good:
-                                    st.success(f"✅ Processed! {ret_qty} units added back into live stock balances.")
+                                    st.success(f"Processed! {ret_qty} units added back into live stock balances.")
                                 else:
-                                    st.warning("⚠️ Item marked Defective! Logged to tracker database for factory handling. Live balances left unchanged.")
+                                    st.warning("Item marked Defective! Logged to tracker database for factory handling. Live balances left unchanged.")
                                 st.rerun()
 
     # ── RIGHT COLUMN: LIVE INVENTORY LEDGER ──────────────────────────────────
@@ -685,9 +685,9 @@ if st.session_state.user_role in ["Salesman", "Manager", "Customer"]:
         st.write("")
         st.write("")
 
-        st.subheader("📊 Live Master Inventory Ledger")
+        st.subheader("Live Master Inventory Ledger")
         search_query = st.text_input(
-            "🔍 Search Inventory Ledger",
+            "Search Inventory Ledger",
             placeholder="Type product name or category to filter...",
             key="global_ledger_search",
         )

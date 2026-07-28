@@ -1,11 +1,9 @@
 import streamlit as st
 from services.inventory_services import InventoryRepo
+from utils.icons import get_lucide_html
 
 def render():
-    st.markdown("## ➕ Add New Product Master")
-    
-    # Navigation
-    if st.button("← Back to Dashboard"):
+    if st.button("Back to Dashboard"):
         st.session_state.active_module = "Overview"
         st.rerun()
 

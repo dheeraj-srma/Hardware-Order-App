@@ -1,17 +1,17 @@
 import streamlit as st
 from database.crud import load_table, adjust_stock
+from utils.icons import get_lucide_html
 
 def render():
-    st.markdown('<h2 class="page-title">⚖️ Stock Adjustments</h2>', unsafe_allow_html=True)
     st.markdown('<p class="page-subtitle">Reconcile system stock against a physical count.</p>', unsafe_allow_html=True)
 
-    if st.button("← Back to Dashboard"):
+    if st.button("Back to Dashboard"):
         st.session_state.active_module = "Overview"
         st.rerun()
 
     df = load_table("INVENTORY")
     if df.empty or "Category" not in df.columns or "SKU" not in df.columns:
-        st.warning("⚠️ No inventory items found.")
+        st.warning("No inventory items found.")
         return
 
     categories = df["Category"].dropna().unique().tolist()
@@ -49,7 +49,7 @@ def render():
 
         if submitted:
             if not selected_sku:
-                st.error("❌ Could not resolve a valid SKU for the selected Category and Item.")
+                st.error("Could not resolve a valid SKU for the selected Category and Item.")
             else:
                 with st.spinner("Applying adjustment..."):
                     # Pass selected_category, selected_sku, selected_item_name, new_quantity, current_val, and reason
